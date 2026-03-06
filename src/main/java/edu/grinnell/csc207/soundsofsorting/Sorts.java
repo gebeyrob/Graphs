@@ -33,7 +33,15 @@ public class Sorts {
      */
     public static <T extends Comparable<? super T>> List<SortEvent<T>> bubbleSort(T[] arr) {
         List<SortEvent<T>> events = new ArrayList<>();
-        // TODO: fill me in!
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr.length - i - 1; j++) {
+                if (arr[j].compareTo(arr[j + 1]) > 0) {
+                    swap(arr, j, j + 1);
+                    SortEvent<T> sw = new SwapEvent(j, j+1);
+                    events.add(sw);
+                }
+            }
+        }
         return events;
     }
 
