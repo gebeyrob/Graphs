@@ -165,7 +165,7 @@ public class Sorts {
                 idxArr++;
                 idxLeft++;
             } else {
-                events.add(new CopyEvent<>(idxArr, rightArr[idxLeft]));
+                events.add(new CopyEvent<>(idxArr, rightArr[idxRight]));
                 arr[idxArr] = rightArr[idxRight];
                 idxArr++;
                 idxRight++;
@@ -182,7 +182,7 @@ public class Sorts {
 
         // if any elements left in the right array
         while (idxRight < rightLen) {
-            events.add(new CopyEvent<>(idxArr, rightArr[idxLeft]));
+            events.add(new CopyEvent<>(idxArr, rightArr[idxRight]));
             arr[idxArr] = rightArr[idxRight];
             idxArr++;
             idxRight++;
@@ -198,18 +198,48 @@ public class Sorts {
      */
     public static <T extends Comparable<? super T>> List<SortEvent<T>> quickSort(T[] arr) {
         List<SortEvent<T>> events = new ArrayList<>();
-        // TODO: fill me in!
-        return events;
+            quickSortHelper(arr, 0, arr.length - 1, events);
+
+            return events;
+
+    }
+
+    public static <T extends Comparable<? super T>> void quickSortHelper(T[] arr, int low, int high, List<SortEvent<T>> events) {
+        if (low >= high) {
+            int piovtINDEX = partition(arr, low, high, events);
+
+            quickSortHelper(arr, low, piovtINDEX - 1, events);
+            quickSortHelper(arr, piovtINDEX + 1, high, events);
+        }
+    }
+
+    public static <T extends Comparable<? super T>> int partition(T[] arr, int low, int high, List<SortEvent<T>> events) {
+        T pivot = arr[high];
+        int i = low - 1;
+        
+        for( int j = low; j < high; j++) {
+            events.add(new SwapEvent<>(j, high));
+            if (arr[j].compareTo(pivot) < 0) {
+                i++;
+                events.add(new SwapEvent<>(i, j));
+                swap(arr, i, j);
+            }
+       }
+       events.add(new SwapEvent<>(i + 1, high));
+       swap(arr, i+1, high);
+       return i + 1;
     }
 
     /**
      * Sorts the given array by applying the given events to it, in sequence.
-     * 
+     *  
      * @param events the sorting events to apply
      * @param arr    the array to sort
      */
     public static <T extends Comparable<? super T>> void eventSort(
-            List<SortEvent<T>> events, T[] arr) {
-        // TODO: implement me!
+        List<SortEvent<T>> events, T[] arr) {
+        for (SortEvent<T> event: events){
+            event.apply(arr);
+        }
     }
 }
