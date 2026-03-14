@@ -117,48 +117,54 @@ public class Sorts {
     public static <T extends Comparable<? super T>> List<SortEvent<T>> mergeSort(
             T[] arr) {
         List<SortEvent<T>> events = new ArrayList<>();
-         int len = arr.length;
-        if (len <= 1) {
-            return events;
-        }
-        int middle = len / 2;
-        T[] leftArr = Arrays.copyOfRange(arr, 0, middle);
-        T[] rightArr = Arrays.copyOfRange(arr, middle, len);
-        int rightPointer = 0;
-        for (int i = 0; i < len; i++) {
-            if (i < middle) {
-                leftArr[i] = arr[i];
-            } else {
-                rightArr[rightPointer] = arr[i];
-                rightPointer++;
-            }
-        }
-        mergeSort(leftArr);
-        mergeSort(rightArr);
-        merge(arr, leftArr, rightArr, events);
+        mergeSortHelper(arr, 0, arr.length, events);
         return events;
     }
 
     /**
-     * Helper for merge sort algorithm:
+     * Recursive helper function for merge sort.
+     *
+     * @param <T>       the carrier type of the array
+     * @param arr       the array to sort
+     * @param firstIdx  the lower bound of the subarray
+     * @param secondIdx the upper bound of the subarray
+     * @param events    the list of sort events
+     */
+    public static <T extends Comparable<? super T>> void mergeSortHelper(
+            T[] arr, int firstIdx, int secondIdx, List<SortEvent<T>> events) {
+        if (secondIdx - firstIdx <= 1) {
+            return;
+        }
+        int middle = firstIdx + (secondIdx - firstIdx) / 2;
+        mergeSortHelper(arr, firstIdx, middle, events);
+        mergeSortHelper(arr, middle, secondIdx, events);
+        merge(arr, firstIdx, middle, secondIdx, events);
+    }
+
+    /**
+     * Merging helper function for merge sort algorithm.
      * Merges the two sorted halves into a sorted whole.
      *
-     * @param <T>      the carrier type of the array
-     * @param arr      the array to merge into
-     * @param leftArr  the sorted left half
-     * @param rightArr the sorted right half
+     * @param <T>    the carrier type of the array
+     * @param arr    the array to merge into
+     * @param lo     the lower bound of the left half (inclusive)
+     * @param mid    the upper bound of the left half (exclusive)
+     * @param hi     the upper bound of the right half (exclusive)
+     * @param events the list of sort events
      */
-    public static <T extends Comparable<? super T>> void merge(T[] arr, T[] leftArr, T[] rightArr, List<SortEvent<T>> events) {
+    public static <T extends Comparable<? super T>> void merge(T[] arr, int firstIdx, int middle, int secondIdx,
+            List<SortEvent<T>> events) {
         // lengths or arrays
-        int leftLen = leftArr.length;
-        int rightLen = rightArr.length;
+        T[] leftArr = Arrays.copyOfRange(arr, firstIdx, middle);
+        T[] rightArr = Arrays.copyOfRange(arr, middle, secondIdx);
 
         // indeces to walk over the arrays
         int idxLeft = 0;
         int idxRight = 0;
-        int idxArr = 0;
+        int idxArr = firstIdx;
 
-        while (idxLeft < leftLen && idxRight < rightLen) {
+        while (idxLeft < leftArr.length && idxRight < rightArr.length) {
+            events.add(new CompareEvent<>(firstIdx + idxLeft, middle + idxRight));
             if (leftArr[idxLeft].compareTo(rightArr[idxRight]) < 0) {
                 events.add(new CopyEvent<>(idxArr, leftArr[idxLeft]));
                 arr[idxArr] = leftArr[idxLeft];
@@ -173,7 +179,7 @@ public class Sorts {
         }
 
         // if any elements left in the left array
-        while (idxLeft < leftLen) {
+        while (idxLeft < leftArr.length) {
             events.add(new CopyEvent<>(idxArr, leftArr[idxLeft]));
             arr[idxArr] = leftArr[idxLeft];
             idxArr++;
@@ -181,7 +187,7 @@ public class Sorts {
         }
 
         // if any elements left in the right array
-        while (idxRight < rightLen) {
+        while (idxRight < rightArr.length) {
             events.add(new CopyEvent<>(idxArr, rightArr[idxRight]));
             arr[idxArr] = rightArr[idxRight];
             idxArr++;
@@ -198,47 +204,48 @@ public class Sorts {
      */
     public static <T extends Comparable<? super T>> List<SortEvent<T>> quickSort(T[] arr) {
         List<SortEvent<T>> events = new ArrayList<>();
-            quickSortHelper(arr, 0, arr.length - 1, events);
+        quickSortHelper(arr, 0, arr.length - 1, events);
 
-            return events;
+        return events;
 
     }
 
-    public static <T extends Comparable<? super T>> void quickSortHelper(T[] arr, int low, int high, List<SortEvent<T>> events) {
-        if (low >= high) {
-            int piovtINDEX = partition(arr, low, high, events);
-
-            quickSortHelper(arr, low, piovtINDEX - 1, events);
-            quickSortHelper(arr, piovtINDEX + 1, high, events);
+    public static <T extends Comparable<? super T>> void quickSortHelper(T[] arr, int low, int high,
+            List<SortEvent<T>> events) {
+        if (low < high) {
+            int pivotIndex = partition(arr, low, high, events);
+            quickSortHelper(arr, low, pivotIndex - 1, events);
+            quickSortHelper(arr, pivotIndex + 1, high, events);
         }
     }
 
-    public static <T extends Comparable<? super T>> int partition(T[] arr, int low, int high, List<SortEvent<T>> events) {
+    public static <T extends Comparable<? super T>> int partition(T[] arr, int low, int high,
+            List<SortEvent<T>> events) {
         T pivot = arr[high];
         int i = low - 1;
-        
-        for( int j = low; j < high; j++) {
-            events.add(new SwapEvent<>(j, high));
+
+        for (int j = low; j < high; j++) {
+            events.add(new CompareEvent<>(j, high));
             if (arr[j].compareTo(pivot) < 0) {
                 i++;
                 events.add(new SwapEvent<>(i, j));
                 swap(arr, i, j);
             }
-       }
-       events.add(new SwapEvent<>(i + 1, high));
-       swap(arr, i+1, high);
-       return i + 1;
+        }
+        events.add(new SwapEvent<>(i + 1, high));
+        swap(arr, i + 1, high);
+        return i + 1;
     }
 
     /**
      * Sorts the given array by applying the given events to it, in sequence.
-     *  
+     * 
      * @param events the sorting events to apply
      * @param arr    the array to sort
      */
     public static <T extends Comparable<? super T>> void eventSort(
-        List<SortEvent<T>> events, T[] arr) {
-        for (SortEvent<T> event: events){
+            List<SortEvent<T>> events, T[] arr) {
+        for (SortEvent<T> event : events) {
             event.apply(arr);
         }
     }
