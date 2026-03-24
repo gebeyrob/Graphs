@@ -30,7 +30,7 @@ public class CopyEvent<T> implements SortEvent<T> {
      */
     public void apply(T[] arr) {
         arr[idx] = value;
-    };
+    }
 
     /**
      * @return a list of the indices (index) affected by this event

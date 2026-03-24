@@ -61,20 +61,24 @@ public class SortsTests {
     @Test
     public void testInsertionSort() {
         testSort(Sorts::insertionSort);
+        testEvents(Sorts::insertionSort);
     }
     
     @Test
     public void testSelectionSort() {
         testSort(Sorts::selectionSort);
+        testEvents(Sorts::selectionSort);
     }
 
     @Test
     public void testMergeSort() {
         testSort(Sorts::mergeSort);
+        testEvents(Sorts::mergeSort);
     }
     
     @Test
     public void testQuickSort() {
         testSort(Sorts::quickSort);
+        testEvents(Sorts::quickSort);
     }
 }

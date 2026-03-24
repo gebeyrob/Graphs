@@ -28,7 +28,7 @@ public class CompareEvent<T> implements SortEvent<T> {
      * Applies this event to the array.
      * @param arr the array to modify
      */
-    public void apply(T[] arr){};
+    public void apply(T[] arr){}
 
     /**
      * @return a list of the indices affected by this event

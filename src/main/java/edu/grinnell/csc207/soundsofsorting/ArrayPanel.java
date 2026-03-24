@@ -36,11 +36,12 @@ public class ArrayPanel extends JPanel {
             int height = (int) (heightRatio * getHeight());
             int y = getHeight() - height;
             if (indices.isHighlighted(i)) {
-                g.setColor(Color.ORANGE);
+                g.setColor(Color.WHITE);
             } else {
-                g.setColor(new Color(75, (int) (heightRatio * 255), 128));
+                g.setColor(new Color(30, 100, (int) (heightRatio * 255)));
             }
-            g.fillRect(x, y, barWidth, height);
+            g.fillRoundRect(x + 1, y, barWidth - 1, height, 4, 4);
+            this.setBackground(Color.BLACK);
         }
         // Now that we've highlighted the affected indices, clear them so they
         // aren't highlighted again on the next step.
